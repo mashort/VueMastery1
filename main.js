@@ -18,6 +18,10 @@ Vue.component('product', {
             type: Boolean,
             required: true
             //default: "You can also set default values here"
+        },
+        cart: {
+            type: Array,
+            required: true
         }
     },
     template: `
@@ -45,8 +49,12 @@ Vue.component('product', {
                     :disabled="!inStock"
                     :class="{ disabledButton: !inStock }">Add to Cart</button>
 
-            <button v-on:click="removeFromCart">Remove</button>
+            <button v-on:click="removeFromCart"
+                    :disabled="cartEmpty"
+                    :class="{ disabledButton: cartEmpty }">Remove</button>
         </div>
+
+        <product-review></product-review>
     </div>
     `,
     data() {
@@ -101,16 +109,45 @@ Vue.component('product', {
                 return "Free"
             }
             return 2.99
+        },
+        cartEmpty() {
+            if (this.cart.length == 0) {
+                return true
+            }
+            return false
+        } 
+    }
+})
+
+Vue.component('product-review', {
+    template: `
+    <form class="review-form">
+        <p>
+            <label for="name">Name</label>
+            <input id="name" v-model="name">
+        </p>
+        <p>
+            <label for="review">Review</label>
+            <textarea id="review" v-model="review"></textarea>
+        </p>
+        <p>
+            <label for="rating">Rating</label>
+            <select id="rating" v-model.number="rating">
+                <option>5</option>
+                <option>4</option>
+                <option>3</option>
+                <option>2</option>
+                <option>1</option>
+            </select>
+        </p>
+    </form>
+    `,
+    data() {
+        return {
+            name: null,
+            review: null,
+            rating: null
         }
-        // cartEmpty() {
-        //     if (typeof this.cart !== 'undefined') {
-        //         if (this.cart.length == 0) {
-        //             return true
-        //         }
-        //         return false
-        //     }
-        //     return true
-        // } 
     }
 })
 
