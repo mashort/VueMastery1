@@ -21,35 +21,33 @@ Vue.component('product', {
         }
     },
     template: `
-        <div class="product">
-            <div class="product-image">
-                <img v-bind:src="image">
-            </div>
-
-            <div class="product-info">
-                <h1>{{ title }}</h1>
-                <p v-if="inStock">In Stock</p>
-                <p v-else>Out of Stock</p>
-                <p>Shipping: {{ shipping }}</p>
-
-                <product-details :details="details"></product-details>
-
-                <div class="color-box"
-                    v-for="(variant, index) in variants"
-                    :key="variant.variantId"
-                    :style="{ backgroundColor: variant.variantColor }"
-                    @mouseover="updateProduct(index)">
-                </div>
-
-                <button v-on:click="addToCart"
-                        :disabled="!inStock"
-                        :class="{ disabledButton: !inStock }">Add to Cart</button>
-                
-                <div class="cart">
-                    <p>Cart({{cart}})</p>
-                </div>
-            </div>
+    <div class="product">
+        <div class="product-image">
+            <img v-bind:src="image">
         </div>
+
+        <div class="product-info">
+            <h1>{{ title }}</h1>
+            <p v-if="inStock">In Stock</p>
+            <p v-else>Out of Stock</p>
+            <p>Shipping: {{ shipping }}</p>
+
+            <product-details :details="details"></product-details>
+
+            <div class="color-box"
+                v-for="(variant, index) in variants"
+                :key="variant.variantId"
+                :style="{ backgroundColor: variant.variantColor }"
+                @mouseover="updateProduct(index)">
+            </div>
+
+            <button v-on:click="addToCart"
+                    :disabled="!inStock"
+                    :class="{ disabledButton: !inStock }">Add to Cart</button>
+
+            <button v-on:click="removeFromCart">Remove</button>
+        </div>
+    </div>
     `,
     data() {
         return {
@@ -70,18 +68,20 @@ Vue.component('product', {
                     variantImage: './assets/vmSocks-blue-onWhite.jpg',
                     variantQuantity: 0
                 }
-            ],
-            cart: 0
+            ]
         }
     },
     methods: {
         // The declaration of addToCart() is the ES6 way to declare an anonymous function.
         // Note that this may not work in some older browsers
         addToCart() {
-            this.cart += 1
+            this.$emit('add-to-cart', this.variants[this.selectedVariant].variantId, 'add')
         },
         updateProduct: function (index) {
             this.selectedVariant = index
+        },
+        removeFromCart () {
+            this.$emit('remove-from-cart', this.variants[this.selectedVariant].variantId, 'remove')
         }
     },
     computed: {
@@ -102,12 +102,34 @@ Vue.component('product', {
             }
             return 2.99
         }
+        // cartEmpty() {
+        //     if (typeof this.cart !== 'undefined') {
+        //         if (this.cart.length == 0) {
+        //             return true
+        //         }
+        //         return false
+        //     }
+        //     return true
+        // } 
     }
 })
 
 var app = new Vue({
     el: '#app',
     data: {
-        premium: true
+        premium: true,
+        cart: []
+    },
+    methods: {
+        updateCart(id, action) {
+            switch (action) {
+                case 'add':
+                    this.cart.push(id)
+                    break
+                case 'remove': {
+                    this.cart.splice(this.cart.indexOf(id), 1)
+                }
+            }
+        }
     }
 })
